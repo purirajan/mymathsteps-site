@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import './App.css'
 
 const navItems = [
@@ -52,40 +53,107 @@ const footerLinks = [
   { label: 'How it works', href: '#how-it-works' },
   { label: 'For parents', href: '#for-parents' },
   { label: 'Our approach', href: '#our-approach' },
-  { label: 'Privacy policy', href: '#privacy' },
-  { label: 'Terms of service', href: '#terms' },
+  { label: 'Privacy', href: '#privacy-policy' },
+  { label: 'Terms', href: '#terms-of-service' },
 ]
 
-function App() {
+function Brand({ footer = false }) {
   return (
-    <div className="home-page">
+    <a className={`brand${footer ? ' footer-brand' : ''}`} href="/" aria-label="MyMathSteps home">
+      <span className="brand-mark" aria-hidden="true">
+        <span className="brand-step step-one" />
+        <span className="brand-step step-two" />
+        <span className="brand-step step-three" />
+        <span className="brand-star" />
+      </span>
+      <span className="brand-text">MyMathSteps</span>
+    </a>
+  )
+}
+
+function AssessmentEntry() {
+  useEffect(() => {
+    document.title = 'Free Math Check-in | MyMathSteps'
+  }, [])
+
+  return (
+    <div className="home-page entry-page" id="top">
+      <a className="skip-link" href="#main-content">Skip to content</a>
       <header className="site-header">
         <div className="container header-inner">
-          <a className="brand" href="#top" aria-label="MyMathSteps home">
-            <span className="brand-mark" aria-hidden="true">
-              <span className="brand-step step-one" />
-              <span className="brand-step step-two" />
-              <span className="brand-step step-three" />
-              <span className="brand-star" />
-            </span>
-            <span className="brand-text">MyMathSteps</span>
-          </a>
+          <Brand />
+          <a className="secondary-button" href="/">Back to home</a>
+        </div>
+      </header>
+      <main className="container assessment-entry" id="main-content">
+        <span className="eyebrow">Free math check-in</span>
+        <h1>Your next step starts with a check-in.</h1>
+        <p>
+          The MyMathSteps homepage is ready, and the interactive check-in is still being developed. This preview does not ask for or store a student’s personal information.
+        </p>
+        <div className="entry-note">
+          <strong>What to expect</strong>
+          <p>When the check-in is available, students will review grade-level math skills and receive clear suggestions for what to practice next.</p>
+        </div>
+        <a className="primary-button" href="/#how-it-works">See how MyMathSteps works</a>
+      </main>
+    </div>
+  )
+}
 
-          <nav className="site-nav" aria-label="Main navigation">
+function App() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined
+
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setMobileMenuOpen(false)
+    }
+
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [mobileMenuOpen])
+
+  if (window.location.pathname.replace(/\/$/, '') === '/assessment') {
+    return <AssessmentEntry />
+  }
+
+  return (
+    <div className="home-page" id="top">
+      <a className="skip-link" href="#main-content">Skip to content</a>
+      <header className="site-header">
+        <div className="container header-inner">
+          <Brand />
+
+          <button
+            className="menu-toggle"
+            type="button"
+            aria-controls="site-navigation"
+            aria-expanded={mobileMenuOpen}
+            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            onClick={() => setMobileMenuOpen((isOpen) => !isOpen)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+
+          <nav id="site-navigation" className={`site-nav${mobileMenuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
             {navItems.map((item) => (
-              <a key={item.label} href={item.href}>
+              <a key={item.label} href={item.href} onClick={() => setMobileMenuOpen(false)}>
                 {item.label}
               </a>
             ))}
           </nav>
 
-          <a className="header-cta" href="#assessment">
+          <a className="header-cta" href="/assessment/">
             Try a free check-in
           </a>
         </div>
       </header>
 
-      <main id="top">
+      <main id="main-content" tabIndex="-1">
         <section className="hero-section">
           <div className="container hero-grid">
             <div className="hero-copy">
@@ -96,7 +164,7 @@ function App() {
               </p>
 
               <div className="hero-actions">
-                <a className="primary-button" href="#assessment">
+                <a className="primary-button" href="/assessment/">
                   Try a free math check-in
                 </a>
                 <a className="secondary-button" href="#how-it-works">
@@ -105,17 +173,16 @@ function App() {
               </div>
             </div>
 
-            <div className="hero-visual" aria-label="Illustration of student progress and math learning">
+            <div className="hero-visual" role="img" aria-label="Illustrative preview of a math skills summary">
               <div className="dashboard-card">
                 <div className="dashboard-top">
-                  <span className="tiny-pill">Student check-in</span>
-                  <span className="rating-badge">92%</span>
+                  <span className="tiny-pill">Illustrative skills preview</span>
                 </div>
 
                 <div className="student-card">
                   <div className="avatar">A</div>
                   <div>
-                    <strong>Ava</strong>
+                    <strong>Sample learner</strong>
                     <small>Grade 7</small>
                   </div>
                 </div>
@@ -139,8 +206,8 @@ function App() {
                 </div>
               </div>
 
-              <div className="floating-tag tag-one">+12% growth</div>
-              <div className="floating-tag tag-two">3 skills to practice</div>
+              <div className="floating-tag tag-one">Skills to practice</div>
+              <div className="floating-tag tag-two">Building confidence</div>
               <div className="floating-tag tag-three">Next step</div>
             </div>
           </div>
@@ -184,7 +251,7 @@ function App() {
           </div>
         </section>
 
-        <section id="assessment" className="report-section section-spacing">
+        <section id="sample-report" className="report-section section-spacing">
           <div className="container report-grid">
             <div className="report-card">
               <div className="section-heading left-align">
@@ -196,9 +263,9 @@ function App() {
                 <div className="report-header-row">
                   <div>
                     <strong>Student profile</strong>
-                    <p>Ava • Grade 7</p>
+                    <p>Illustrative student • Grade 7</p>
                   </div>
-                  <span className="report-badge">Overall: 74%</span>
+                  <span className="report-badge">Sample only</span>
                 </div>
 
                 <div className="skill-list">
@@ -229,7 +296,7 @@ function App() {
         </section>
 
         <section id="for-parents" className="reassurance-section section-spacing">
-          <div className="container reassurance-box">
+          <div className="container reassurance-box" id="our-approach">
             <div className="reassurance-copy">
               <span className="eyebrow">For parents</span>
               <h2>Know what to work on next—not just what went wrong.</h2>
@@ -240,32 +307,24 @@ function App() {
           </div>
         </section>
 
-        <section id="our-approach" className="cta-section section-spacing">
+        <section className="cta-section section-spacing">
           <div className="container cta-box">
             <div>
               <span className="eyebrow">Ready when you are</span>
               <h2>Ready to find your child’s next step?</h2>
               <p>Start with a math check-in and discover the skills to build on.</p>
             </div>
-            <a className="primary-button large" href="#assessment">
+            <a className="primary-button large" href="/assessment/">
               Try a free math check-in
             </a>
           </div>
         </section>
       </main>
 
-      <footer className="site-footer" id="privacy">
+      <footer className="site-footer">
         <div className="container footer-grid">
           <div>
-            <a className="brand footer-brand" href="#top">
-              <span className="brand-mark" aria-hidden="true">
-                <span className="brand-step step-one" />
-                <span className="brand-step step-two" />
-                <span className="brand-step step-three" />
-                <span className="brand-star" />
-              </span>
-              <span className="brand-text">MyMathSteps</span>
-            </a>
+            <Brand footer />
             <p className="footer-copy">A friendly, parent-first math learning platform for middle school students.</p>
           </div>
 
@@ -277,10 +336,20 @@ function App() {
             ))}
           </div>
 
-          <div className="footer-meta" id="terms">
+          <div className="footer-meta">
             <span>© 2026 MyMathSteps</span>
-            <a href="#top">Contact</a>
+            <a href="#top">Back to top</a>
           </div>
+
+          <section className="footer-legal" id="privacy-policy" aria-labelledby="privacy-heading">
+            <h2 id="privacy-heading">Privacy</h2>
+            <p>This homepage does not request or store student information and does not include marketing analytics. A reviewed privacy policy will be needed before collecting personal information.</p>
+          </section>
+
+          <section className="footer-legal" id="terms-of-service" aria-labelledby="terms-heading">
+            <h2 id="terms-heading">Terms</h2>
+            <p>MyMathSteps is an early product preview. The sample report is illustrative, and this website is not a diagnostic or standardized assessment.</p>
+          </section>
         </div>
       </footer>
     </div>
