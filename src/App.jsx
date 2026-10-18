@@ -1,306 +1,288 @@
-import { useMemo, useState } from 'react'
 import './App.css'
 
-const questions = [
+const navItems = [
+  { label: 'How it works', href: '#how-it-works' },
+  { label: 'For parents', href: '#for-parents' },
+  { label: 'Our approach', href: '#our-approach' },
+]
+
+const benefits = [
   {
-    id: 'q1',
-    topic: 'Fractions',
-    prompt: 'Which fraction is greater?',
-    options: ['3/4', '2/3', '1/2', '1/5'],
-    correct: '3/4',
-    explanation: '3/4 = 0.75, which is greater than 2/3 ≈ 0.67 and the other values.',
+    title: 'Spot skill gaps',
+    description: 'Understand which math skills your child may need to practice before gaps get bigger.',
+    icon: '✦',
   },
   {
-    id: 'q2',
-    topic: 'Decimals',
-    prompt: 'What is 0.72 + 0.18?',
-    options: ['0.79', '0.82', '0.9', '0.98'],
-    correct: '0.9',
-    explanation: 'Adding decimals uses place value: 0.72 + 0.18 = 0.90.',
+    title: 'Find the next step',
+    description: 'Get recommendations for what to work on next instead of a single score with no direction.',
+    icon: '→',
   },
   {
-    id: 'q3',
-    topic: 'Ratios',
-    prompt: 'If 3 notebooks cost $9, what is the price per notebook?',
-    options: ['$2', '$3', '$4', '$6'],
-    correct: '$3',
-    explanation: 'Divide the total price by the number of notebooks: 9 ÷ 3 = 3.',
-  },
-  {
-    id: 'q4',
-    topic: 'Equations',
-    prompt: 'Solve for x: 3x + 5 = 20',
-    options: ['x = 3', 'x = 4', 'x = 5', 'x = 6'],
-    correct: 'x = 5',
-    explanation: 'Subtract 5 from both sides, then divide by 3: 3x = 15, so x = 5.',
-  },
-  {
-    id: 'q5',
-    topic: 'Order of Operations',
-    prompt: 'Evaluate: 6 + 3 × (4 - 1)',
-    options: ['9', '15', '21', '27'],
-    correct: '15',
-    explanation: 'Compute parentheses first: 4 - 1 = 3. Then multiply: 3 × 3 = 9. Finally add 6 + 9 = 15.',
+    title: 'Track progress',
+    description: 'Revisit skills over time and see how confidence and understanding change with practice.',
+    icon: '✓',
   },
 ]
 
-const getTopicStatus = (score) => {
-  if (score >= 80) return 'Strong'
-  if (score >= 60) return 'On track'
-  if (score >= 40) return 'Needs practice'
-  return 'Priority review'
-}
+const steps = [
+  {
+    number: '1',
+    title: 'Check in',
+    description: 'The student completes a short math skills assessment built around grade-level concepts.',
+  },
+  {
+    number: '2',
+    title: 'Get their path',
+    description: 'MyMathSteps sorts results by skill area and highlights the topics that need attention next.',
+  },
+  {
+    number: '3',
+    title: 'Celebrate progress',
+    description: 'Students practice with focused activities and can revisit the skill with a follow-up check-in.',
+  },
+]
+
+const sampleSkills = [
+  { name: 'Fractions', state: 'Ready to practice', tone: 'ready' },
+  { name: 'Ratios and rates', state: 'Building confidence', tone: 'waiting' },
+  { name: 'Expressions', state: 'Strong foundation', tone: 'strong' },
+]
+
+const footerLinks = [
+  { label: 'How it works', href: '#how-it-works' },
+  { label: 'For parents', href: '#for-parents' },
+  { label: 'Our approach', href: '#our-approach' },
+  { label: 'Privacy policy', href: '#privacy' },
+  { label: 'Terms of service', href: '#terms' },
+]
 
 function App() {
-  const [student, setStudent] = useState({ name: 'Ava', grade: 'Grade 7' })
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [answers, setAnswers] = useState({})
-  const [showResults, setShowResults] = useState(false)
-
-  const currentQuestion = questions[currentIndex]
-  const answeredCount = Object.keys(answers).length
-
-  const results = useMemo(() => {
-    const topicScores = {}
-
-    questions.forEach((question) => {
-      const topic = question.topic
-      const selectedAnswer = answers[question.id]
-      if (!topicScores[topic]) {
-        topicScores[topic] = { correct: 0, total: 0 }
-      }
-      topicScores[topic].total += 1
-      if (selectedAnswer === question.correct) {
-        topicScores[topic].correct += 1
-      }
-    })
-
-    const topicSummary = Object.entries(topicScores).map(([topic, data]) => {
-      const mastery = Math.round((data.correct / data.total) * 100)
-      return {
-        topic,
-        mastery,
-        status: getTopicStatus(mastery),
-        prompt:
-          mastery >= 80
-            ? 'Skill appears secure.'
-            : mastery >= 60
-              ? 'A quick review will strengthen this concept.'
-              : 'Needs targeted practice and concept support.',
-      }
-    })
-
-    const totalCorrect = questions.reduce(
-      (sum, question) => sum + (answers[question.id] === question.correct ? 1 : 0),
-      0,
-    )
-
-    const overallScore = Math.round((totalCorrect / questions.length) * 100)
-    const priorityTopics = [...topicSummary].sort((a, b) => a.mastery - b.mastery).slice(0, 2)
-
-    return { overallScore, topicSummary, priorityTopics, totalCorrect }
-  }, [answers])
-
-  const handleAnswer = (option) => {
-    setAnswers((prev) => ({ ...prev, [currentQuestion.id]: option }))
-
-    if (currentIndex < questions.length - 1) {
-      setCurrentIndex((index) => index + 1)
-      return
-    }
-
-    setShowResults(true)
-  }
-
-  const resetAssessment = () => {
-    setCurrentIndex(0)
-    setAnswers({})
-    setShowResults(false)
-  }
-
-  const progress = showResults ? 100 : Math.round((answeredCount / questions.length) * 100)
-
   return (
-    <div className="page-shell">
-      <header className="topbar">
-        <div className="brand-block">
-          <div className="brand-mark">M</div>
-          <div>
-            <p className="eyebrow">MyMathSteps.com</p>
-            <strong>Learning gap portal</strong>
-          </div>
-        </div>
+    <div className="home-page">
+      <header className="site-header">
+        <div className="container header-inner">
+          <a className="brand" href="#top" aria-label="MyMathSteps home">
+            <span className="brand-mark" aria-hidden="true">
+              <span className="brand-step step-one" />
+              <span className="brand-step step-two" />
+              <span className="brand-step step-three" />
+              <span className="brand-star" />
+            </span>
+            <span className="brand-text">MyMathSteps</span>
+          </a>
 
-        <nav className="topnav" aria-label="Main navigation">
-          <a href="#platform">Platform</a>
-          <a href="#dashboard">Parent dashboard</a>
-          <a href="#results">Progress</a>
-        </nav>
+          <nav className="site-nav" aria-label="Main navigation">
+            {navItems.map((item) => (
+              <a key={item.label} href={item.href}>
+                {item.label}
+              </a>
+            ))}
+          </nav>
+
+          <a className="header-cta" href="#assessment">
+            Try a free check-in
+          </a>
+        </div>
       </header>
 
-      <main className="content">
-        <section className="hero-card">
-          <div className="hero-copy">
-            <span className="pill">Middle school math readiness</span>
-            <h1>MyMathSteps helps families spot the exact skill gaps that matter.</h1>
-            <p>
-              The MyMathSteps portal helps parents understand a student's strengths, identify the precise skills that need attention,
-              and turn assessment results into a personalized improvement plan.
-            </p>
-            <div className="hero-actions">
-              <button type="button" className="primary-button" onClick={() => setCurrentIndex(0)}>
-                Start assessment
-              </button>
-              <button type="button" className="secondary-button" onClick={() => setShowResults(true)}>
-                View sample report
-              </button>
-            </div>
-          </div>
+      <main id="top">
+        <section className="hero-section">
+          <div className="container hero-grid">
+            <div className="hero-copy">
+              <span className="eyebrow">Middle school math readiness</span>
+              <h1>Every student can take the next step in math.</h1>
+              <p>
+                Find the skills your child knows, spot potential gaps, and get a personalized plan to build confidence—one step at a time.
+              </p>
 
-          <div className="hero-stats">
-            <div className="stat-box accent">
-              <span className="stat-label">Students tracked</span>
-              <strong>12,400</strong>
+              <div className="hero-actions">
+                <a className="primary-button" href="#assessment">
+                  Try a free math check-in
+                </a>
+                <a className="secondary-button" href="#how-it-works">
+                  See how it works
+                </a>
+              </div>
             </div>
-            <div className="stat-box">
-              <span className="stat-label">Skills mapped</span>
-              <strong>70+</strong>
-            </div>
-            <div className="stat-box">
-              <span className="stat-label">Avg. follow-up gain</span>
-              <strong>+18%</strong>
+
+            <div className="hero-visual" aria-label="Illustration of student progress and math learning">
+              <div className="dashboard-card">
+                <div className="dashboard-top">
+                  <span className="tiny-pill">Student check-in</span>
+                  <span className="rating-badge">92%</span>
+                </div>
+
+                <div className="student-card">
+                  <div className="avatar">A</div>
+                  <div>
+                    <strong>Ava</strong>
+                    <small>Grade 7</small>
+                  </div>
+                </div>
+
+                <div className="progress-stack">
+                  <div className="progress-line">
+                    <span>Fractions</span>
+                    <strong>Ready</strong>
+                  </div>
+                  <div className="meter">
+                    <span style={{ width: '78%' }} />
+                  </div>
+
+                  <div className="progress-line">
+                    <span>Ratios</span>
+                    <strong>Practice</strong>
+                  </div>
+                  <div className="meter accent">
+                    <span style={{ width: '58%' }} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="floating-tag tag-one">+12% growth</div>
+              <div className="floating-tag tag-two">3 skills to practice</div>
+              <div className="floating-tag tag-three">Next step</div>
             </div>
           </div>
         </section>
 
-        <section id="platform" className="assessment-grid">
-          <div className="assessment-card">
-            <div className="card-header">
-              <div>
-                <p className="eyebrow">Student assessment</p>
-                <h2>{student.name}</h2>
+        <section className="benefits-section section-spacing">
+          <div className="container">
+            <div className="section-heading">
+              <span className="eyebrow">Why parents choose MyMathSteps</span>
+              <h2>Clear answers. Clear next steps.</h2>
+            </div>
+
+            <div className="feature-grid">
+              {benefits.map((benefit) => (
+                <article key={benefit.title} className="feature-card">
+                  <div className="icon-bubble" aria-hidden="true">{benefit.icon}</div>
+                  <h3>{benefit.title}</h3>
+                  <p>{benefit.description}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="how-it-works section-spacing">
+          <div className="container">
+            <div className="section-heading center">
+              <span className="eyebrow">How it works</span>
+              <h2>Three simple steps to a better math plan.</h2>
+            </div>
+
+            <div className="steps-grid">
+              {steps.map((step) => (
+                <div key={step.number} className="step-card">
+                  <div className="step-number">{step.number}</div>
+                  <h3>{step.title}</h3>
+                  <p>{step.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="assessment" className="report-section section-spacing">
+          <div className="container report-grid">
+            <div className="report-card">
+              <div className="section-heading left-align">
+                <span className="eyebrow">Sample parent report</span>
+                <h2>Helpful insight without the overwhelm.</h2>
               </div>
-              <span className="badge">{student.grade}</span>
-            </div>
 
-            <label className="input-label">
-              Student name
-              <input
-                value={student.name}
-                onChange={(event) => setStudent((prev) => ({ ...prev, name: event.target.value }))}
-              />
-            </label>
-
-            <div className="progress-bar" aria-label="Assessment progress">
-              <span style={{ width: `${progress}%` }} />
-            </div>
-
-            {!showResults ? (
-              <>
-                <div className="question-meta">
-                  <span>Question {currentIndex + 1}</span>
-                  <span>{currentQuestion.topic}</span>
+              <div className="report-body">
+                <div className="report-header-row">
+                  <div>
+                    <strong>Student profile</strong>
+                    <p>Ava • Grade 7</p>
+                  </div>
+                  <span className="report-badge">Overall: 74%</span>
                 </div>
 
-                <h3>{currentQuestion.prompt}</h3>
-
-                <div className="options-grid">
-                  {currentQuestion.options.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      className="option-button"
-                      onClick={() => handleAnswer(option)}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="question-footer">
-                  <span>{currentIndex + 1} / {questions.length}</span>
-                  <button type="button" className="text-button" onClick={resetAssessment}>
-                    Reset
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className="results-panel" id="results">
-                <p className="eyebrow">Assessment complete</p>
-                <h3>{student.name}'s overall score: {results.overallScore}%</h3>
-                <p>
-                  This profile suggests the strongest area is {results.topicSummary.filter((topic) => topic.mastery >= 70)[0]?.topic || 'algebra readiness'},
-                  while the highest-priority review areas are {results.priorityTopics.map((item) => item.topic).join(' and ')}.
-                </p>
-
-                <div className="result-stack">
-                  {results.topicSummary.map((item) => (
-                    <div key={item.topic} className="mini-score">
-                      <div className="score-line">
-                        <span>{item.topic}</span>
-                        <strong>{item.mastery}%</strong>
+                <div className="skill-list">
+                  {sampleSkills.map((skill) => (
+                    <div key={skill.name} className="skill-row">
+                      <div className="skill-name">
+                        <span>{skill.name}</span>
+                        <small>{skill.state}</small>
                       </div>
-                      <div className="mini-meter">
-                        <span style={{ width: `${item.mastery}%` }} />
-                      </div>
+                      <span className={`signal signal-${skill.tone}`}>{skill.state}</span>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
-          </div>
-
-          <aside id="dashboard" className="dashboard-card">
-            <div className="card-header">
-              <div>
-                <p className="eyebrow">Parent dashboard</p>
-                <h2>Math progress</h2>
-              </div>
-              <span className="badge success">Live</span>
             </div>
 
-            <div className="summary-grid">
-              <div>
-                <span className="summary-label">Overall performance</span>
-                <strong>{showResults ? `${results.overallScore}%` : '—'}</strong>
-              </div>
-              <div>
-                <span className="summary-label">Target skill</span>
-                <strong>{showResults ? results.priorityTopics[0]?.topic : 'Fractions'}</strong>
-              </div>
-            </div>
-
-            <div className="skill-list">
-              {(showResults ? results.topicSummary : [
-                { topic: 'Fractions', mastery: 52, status: 'Needs practice', prompt: 'Review equivalent fractions and common denominators.' },
-                { topic: 'Ratios', mastery: 64, status: 'On track', prompt: 'Use proportional reasoning with real-world examples.' },
-                { topic: 'Equations', mastery: 47, status: 'Priority review', prompt: 'Practice inverse operations and balancing equations.' },
-              ]).map((item) => (
-                <div key={item.topic} className="skill-item">
-                  <div className="skill-top-row">
-                    <span>{item.topic}</span>
-                    <span className={`status ${item.status.toLowerCase().replace(/\s+/g, '-')}`}>
-                      {item.status}
-                    </span>
-                  </div>
-                  <strong>{item.mastery}%</strong>
-                  <p>{item.prompt}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="plan-box">
-              <p className="eyebrow">Suggested next step</p>
-              <h3>{showResults ? results.priorityTopics[0]?.topic : 'Fractions & equivalence'}</h3>
+            <aside className="next-steps-card">
+              <span className="eyebrow">Your next steps</span>
+              <h3>Focused practice that matches the skill gap.</h3>
               <ul>
-                <li>Complete 6 guided starter problems</li>
-                <li>Watch a 3-minute worked example</li>
-                <li>Retake a short follow-up quiz in 3 days</li>
+                <li>Review equivalent fractions.</li>
+                <li>Practice unit rates with real-world examples.</li>
+                <li>Revisit evaluating expressions with clear examples.</li>
               </ul>
+              <p className="note">Sample report only. This is an illustrative example and not a real student result.</p>
+            </aside>
+          </div>
+        </section>
+
+        <section id="for-parents" className="reassurance-section section-spacing">
+          <div className="container reassurance-box">
+            <div className="reassurance-copy">
+              <span className="eyebrow">For parents</span>
+              <h2>Know what to work on next—not just what went wrong.</h2>
+              <p>
+                MyMathSteps is designed to help families turn math results into practical next steps. The goal is to make learning more understandable, focused, and encouraging.
+              </p>
             </div>
-          </aside>
+          </div>
+        </section>
+
+        <section id="our-approach" className="cta-section section-spacing">
+          <div className="container cta-box">
+            <div>
+              <span className="eyebrow">Ready when you are</span>
+              <h2>Ready to find your child’s next step?</h2>
+              <p>Start with a math check-in and discover the skills to build on.</p>
+            </div>
+            <a className="primary-button large" href="#assessment">
+              Try a free math check-in
+            </a>
+          </div>
         </section>
       </main>
+
+      <footer className="site-footer" id="privacy">
+        <div className="container footer-grid">
+          <div>
+            <a className="brand footer-brand" href="#top">
+              <span className="brand-mark" aria-hidden="true">
+                <span className="brand-step step-one" />
+                <span className="brand-step step-two" />
+                <span className="brand-step step-three" />
+                <span className="brand-star" />
+              </span>
+              <span className="brand-text">MyMathSteps</span>
+            </a>
+            <p className="footer-copy">A friendly, parent-first math learning platform for middle school students.</p>
+          </div>
+
+          <div className="footer-links">
+            {footerLinks.map((link) => (
+              <a key={link.label} href={link.href}>
+                {link.label}
+              </a>
+            ))}
+          </div>
+
+          <div className="footer-meta" id="terms">
+            <span>© 2026 MyMathSteps</span>
+            <a href="#top">Contact</a>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
