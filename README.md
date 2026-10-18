@@ -13,13 +13,7 @@ Mathematics is cumulative. Students often appear to be doing fine in class while
 
 ## Current prototype
 
-This repository contains a working front-end prototype of the portal, including:
-
-- a landing page and portal-style UI
-- a student assessment flow
-- topic-based scoring
-- personalized next-step recommendations
-- a parent dashboard summary
+This project contains the public-facing MyMathSteps homepage and a transparent assessment entry page. The interactive math check-in, student accounts, database, and saved progress are not implemented yet.
 
 ## Tech stack
 
@@ -32,8 +26,8 @@ This repository contains a working front-end prototype of the portal, including:
 From the project directory:
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Then open the local Vite URL shown in the terminal.
@@ -41,8 +35,12 @@ Then open the local Vite URL shown in the terminal.
 ## Build
 
 ```bash
-npm run build
+pnpm build
 ```
+
+## GitHub Pages deployment
+
+The website-only repository deploys through the GitHub Actions workflow in `.github/workflows/deploy-pages.yml`. The production custom domain is declared in `public/CNAME`.
 
 ## Project structure
 
@@ -69,7 +67,7 @@ Planned next steps include:
 3. saved progress and historical reporting
 4. practice lesson content tied to skill gaps
 5. exportable parent reports
-6. deployment for a real mymathsteps.com product experience
+6. implement the assessment flow after product, privacy, and child-data requirements are defined
 
 ## Repository status
 
