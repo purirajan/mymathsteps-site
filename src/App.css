@@ -1,0 +1,472 @@
+.page-shell {
+  width: min(1200px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0 60px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 0 28px;
+}
+
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 800;
+  background: linear-gradient(135deg, #2d7ff9, #7a5af8);
+  box-shadow: 0 12px 25px rgba(76, 102, 255, 0.35);
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  font-weight: 700;
+  color: #5c6a86;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(84, 111, 255, 0.1);
+  color: #2d4ccf;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.topnav {
+  display: flex;
+  gap: 24px;
+}
+
+.topnav a {
+  font-weight: 600;
+  text-decoration: none;
+  color: #284065;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.hero-card {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 24px;
+  padding: 30px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(45, 127, 249, 0.08), rgba(122, 90, 248, 0.08));
+  border: 1px solid rgba(86, 110, 164, 0.15);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.06);
+}
+
+.hero-copy h1 {
+  margin: 0 0 16px;
+  font-size: clamp(2.1rem, 4vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.06em;
+  color: #101828;
+}
+
+.hero-copy p {
+  max-width: 58ch;
+  margin: 0;
+  color: #48576f;
+  font-size: 1.05rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.primary-button,
+.secondary-button,
+.option-button,
+.text-button {
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.primary-button {
+  padding: 14px 18px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #2d7ff9, #7a5af8);
+  box-shadow: 0 12px 24px rgba(83, 110, 255, 0.27);
+}
+
+.secondary-button {
+  padding: 14px 18px;
+  font-weight: 700;
+  color: #1f2d3d;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(91, 106, 140, 0.18);
+}
+
+.primary-button:hover,
+.secondary-button:hover,
+.option-button:hover,
+.text-button:hover {
+  transform: translateY(-1px);
+}
+
+.hero-stats {
+  display: grid;
+  gap: 14px;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 22px 20px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.56);
+  border: 1px solid rgba(95, 111, 153, 0.12);
+}
+
+.stat-box.accent {
+  background: linear-gradient(135deg, rgba(45, 127, 249, 0.12), rgba(122, 90, 248, 0.12));
+}
+
+.stat-box strong {
+  font-size: 2rem;
+  color: #101828;
+}
+
+.stat-label,
+.summary-label {
+  font-size: 0.8rem;
+  color: #5d6b81;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.assessment-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.assessment-card,
+.dashboard-card {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(101, 119, 156, 0.14);
+  border-radius: 28px;
+  padding: 24px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.06);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.card-header h2 {
+  margin: 0;
+  color: #111827;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(83, 110, 255, 0.11);
+  color: #3247b2;
+}
+
+.badge.success {
+  background: rgba(34, 197, 94, 0.1);
+  color: #0b8e4f;
+}
+
+.input-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #465671;
+  margin-bottom: 18px;
+}
+
+.input-label input {
+  border: 1px solid rgba(128, 146, 179, 0.35);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: inherit;
+  background: rgba(251, 253, 255, 0.9);
+}
+
+.progress-bar {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(108, 119, 159, 0.12);
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.progress-bar span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2d7ff9, #7a5af8);
+}
+
+.question-meta,
+.question-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #56697d;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.question-meta {
+  margin-bottom: 18px;
+}
+
+.assessment-card h3,
+.plan-box h3,
+.results-panel h3 {
+  margin: 0 0 22px;
+  color: #101828;
+  font-size: clamp(1.5rem, 2vw, 2rem);
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.option-button {
+  padding: 16px 12px;
+  text-align: left;
+  font: inherit;
+  font-weight: 700;
+  color: #1d2b3d;
+  background: rgba(241, 245, 255, 0.9);
+  border: 1px solid rgba(140, 153, 180, 0.18);
+}
+
+.question-footer {
+  margin-top: 18px;
+}
+
+.text-button {
+  padding: 0;
+  background: transparent;
+  color: #3657c9;
+  font-weight: 700;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.summary-grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 12px;
+  border-radius: 16px;
+  background: rgba(243, 247, 255, 0.9);
+}
+
+.summary-grid strong {
+  font-size: 1.2rem;
+  color: #101828;
+}
+
+.skill-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.skill-item {
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(131, 148, 181, 0.18);
+  background: rgba(246, 248, 254, 0.85);
+}
+
+.skill-top-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  font-weight: 700;
+  color: #1d2b3d;
+}
+
+.skill-item strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.4rem;
+  color: #101828;
+}
+
+.skill-item p {
+  margin: 10px 0 0;
+  color: #576c84;
+  line-height: 1.5;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.status.strong {
+  background: rgba(34, 197, 94, 0.12);
+  color: #0f8e55;
+}
+
+.status.on-track {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1a5db7;
+}
+
+.status.needs-practice,
+.status.priority-review {
+  background: rgba(251, 191, 36, 0.12);
+  color: #a16006;
+}
+
+.plan-box {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(53, 87, 201, 0.08), rgba(122, 90, 248, 0.08));
+}
+
+.plan-box ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #415170;
+  line-height: 1.8;
+}
+
+.results-panel {
+  margin-top: 20px;
+}
+
+.result-stack {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.mini-score {
+  display: grid;
+  gap: 8px;
+}
+
+.score-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #213049;
+  font-weight: 700;
+}
+
+.mini-meter {
+  height: 10px;
+  width: 100%;
+  background: rgba(128, 141, 170, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.mini-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2d7ff9, #7a5af8);
+}
+
+@media (max-width: 900px) {
+  .hero-card,
+  .assessment-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .topnav {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 560px) {
+  .page-shell {
+    width: min(100% - 20px, 1200px);
+  }
+
+  .assessment-card,
+  .dashboard-card,
+  .hero-card {
+    padding: 18px;
+  }
+
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+  }
+}
