@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
+import { checkInQuestionsByGrade } from './assessmentQuestions.js'
+import { getChildProfiles, getCurrentParent, getTestEntitlements } from './familyApi.js'
+import ParentAccount from './ParentAccount.jsx'
 import './App.css'
 
 const navItems = [
   { label: 'How it works', href: '#how-it-works' },
   { label: 'For parents', href: '#for-parents' },
   { label: 'Our approach', href: '#our-approach' },
+  { label: 'Parent log in', href: '/account/' },
 ]
 
 const benefits = [
@@ -72,9 +76,79 @@ function Brand({ footer = false }) {
 }
 
 function AssessmentEntry() {
+  const [screen, setScreen] = useState(() => {
+    const searchParams = new URLSearchParams(window.location.search)
+    const grade = Number(searchParams.get('grade'))
+    return searchParams.get('child') && [6, 7].includes(grade) && getCurrentParent() ? 'checking' : 'access'
+  })
+  const [selectedGrade, setSelectedGrade] = useState('6')
+  const [authorizedChild, setAuthorizedChild] = useState(null)
+  const [questionIndex, setQuestionIndex] = useState(0)
+  const [selectedAnswer, setSelectedAnswer] = useState('')
+  const [answers, setAnswers] = useState({})
+  const [answerChecked, setAnswerChecked] = useState(false)
+
   useEffect(() => {
-    document.title = 'Free Math Check-in | MyMathSteps'
+    document.title = 'Math Readiness Check-in | MyMathSteps'
+    const searchParams = new URLSearchParams(window.location.search)
+    const childId = searchParams.get('child')
+    const gradeFromUrl = Number(searchParams.get('grade'))
+
+    if (!childId || ![6, 7].includes(gradeFromUrl) || !getCurrentParent()) return undefined
+
+    let isActive = true
+    Promise.all([getChildProfiles(), getTestEntitlements()])
+      .then(([profiles, purchases]) => {
+        if (!isActive) return
+        const child = profiles.find((profile) => profile.id === childId && profile.grade === gradeFromUrl)
+        const hasPurchase = purchases.some((purchase) => purchase.child_profile_id === childId && purchase.grade === gradeFromUrl)
+        if (child && hasPurchase) {
+          setAuthorizedChild(child)
+          setSelectedGrade(String(gradeFromUrl))
+          setScreen('intro')
+        } else {
+          setScreen('access')
+        }
+      })
+      .catch(() => {
+        if (isActive) setScreen('access')
+      })
+
+    return () => {
+      isActive = false
+    }
   }, [])
+
+  const checkInQuestions = checkInQuestionsByGrade[selectedGrade]
+  const currentQuestion = checkInQuestions[questionIndex]
+  const correctCount = checkInQuestions.reduce(
+    (count, question) => count + (answers[question.syllabusArea] === question.answer ? 1 : 0),
+    0,
+  )
+
+  const resetCheckIn = () => {
+    setScreen('intro')
+    setQuestionIndex(0)
+    setSelectedAnswer('')
+    setAnswers({})
+    setAnswerChecked(false)
+  }
+
+  const checkAnswer = () => {
+    setAnswers((previous) => ({ ...previous, [currentQuestion.syllabusArea]: selectedAnswer }))
+    setAnswerChecked(true)
+  }
+
+  const continueCheckIn = () => {
+    if (questionIndex === checkInQuestions.length - 1) {
+      setScreen('results')
+      return
+    }
+
+    setQuestionIndex((index) => index + 1)
+    setSelectedAnswer('')
+    setAnswerChecked(false)
+  }
 
   return (
     <div className="home-page entry-page" id="top">
@@ -86,16 +160,134 @@ function AssessmentEntry() {
         </div>
       </header>
       <main className="container assessment-entry" id="main-content">
-        <span className="eyebrow">Free math check-in</span>
-        <h1>Your next step starts with a check-in.</h1>
-        <p>
-          The MyMathSteps homepage is ready, and the interactive check-in is still being developed. This preview does not ask for or store a student’s personal information.
-        </p>
-        <div className="entry-note">
-          <strong>What to expect</strong>
-          <p>When the check-in is available, students will review grade-level math skills and receive clear suggestions for what to practice next.</p>
-        </div>
-        <a className="primary-button" href="/#how-it-works">See how MyMathSteps works</a>
+        {screen === 'checking' && (
+          <section className="checkin-panel" aria-live="polite">
+            <span className="eyebrow">Parent-managed check-in</span>
+            <h1>Checking family access…</h1>
+          </section>
+        )}
+        {screen === 'access' && (
+          <section className="checkin-panel" aria-labelledby="access-title">
+            <span className="eyebrow">Parent-managed check-in</span>
+            <h1 id="access-title">Choose a family profile to continue.</h1>
+            <p className="checkin-intro">A parent account is required to manage profiles and access paid Math Readiness Check-ins. Each purchase covers one child and grade; retakes are included.</p>
+            <a className="primary-button" href="/account/">Go to parent account</a>
+          </section>
+        )}
+        {screen === 'intro' && (
+          <section className="checkin-panel" aria-labelledby="checkin-title">
+            <span className="eyebrow">Math Readiness Check-in</span>
+            <h1 id="checkin-title">A grade-focused check-in to find skills to practice.</h1>
+            <p className="checkin-intro">
+              Answer one sample question from each major topic area in the Grade 6 or Grade 7 syllabus. You’ll see explanations and practice ideas as you go.
+            </p>
+            <p className="question-syllabus-area">Family profile: {authorizedChild?.nickname} · Grade {selectedGrade}</p>
+            <p className="syllabus-note">
+              This topic outline is a starting framework, not an official Common Core or state standards crosswalk. Schools may teach topics in a different order or grade.
+            </p>
+            <div className="entry-note">
+              <strong>Check-in for {authorizedChild?.nickname || 'your learner'} · Grade {selectedGrade}</strong>
+              <p>Answers stay in this browser session and are not saved to the family profile.</p>
+            </div>
+            <p className="assessment-disclaimer">
+              This is a learning practice snapshot, not a diagnostic or standardized preparedness test. One question cannot establish mastery of a whole topic area.
+            </p>
+            <button className="primary-button" type="button" onClick={() => setScreen('questions')}>
+              Start Grade {selectedGrade} check-in
+            </button>
+          </section>
+        )}
+
+        {screen === 'questions' && (
+          <section className="checkin-panel" aria-labelledby="question-title">
+            <span className="eyebrow">Math skills check-in</span>
+            <div
+              className="checkin-progress"
+              role="progressbar"
+              aria-label="Question progress"
+              aria-valuemin={1}
+              aria-valuemax={checkInQuestions.length}
+              aria-valuenow={questionIndex + 1}
+            >
+              <span style={{ width: `${((questionIndex + 1) / checkInQuestions.length) * 100}%` }} />
+            </div>
+            <p className="question-count">Question {questionIndex + 1} of {checkInQuestions.length}</p>
+            <p className="question-topic">{currentQuestion.strand}</p>
+            <p className="question-syllabus-area">Syllabus focus: {currentQuestion.syllabusArea}</p>
+            <h1 id="question-title" className="question-title">{currentQuestion.prompt}</h1>
+
+            <div className="question-options" role="group" aria-label="Answer choices">
+              {currentQuestion.options.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className={`answer-option${selectedAnswer === option ? ' is-selected' : ''}`}
+                  aria-pressed={selectedAnswer === option}
+                  disabled={answerChecked}
+                  onClick={() => setSelectedAnswer(option)}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+
+            {answerChecked && (
+              <p className={`checkin-feedback ${selectedAnswer === currentQuestion.answer ? 'is-correct' : 'needs-practice'}`} role="status" aria-live="polite">
+                <strong>{selectedAnswer === currentQuestion.answer ? 'That’s right.' : `The answer is ${currentQuestion.answer}.`}</strong>{' '}
+                {currentQuestion.explanation}
+              </p>
+            )}
+
+            <div className="checkin-actions">
+              <button className="secondary-button" type="button" onClick={resetCheckIn}>Start over</button>
+              {!answerChecked ? (
+                <button className="primary-button" type="button" disabled={!selectedAnswer} onClick={checkAnswer}>
+                  Check answer
+                </button>
+              ) : (
+                <button className="primary-button" type="button" onClick={continueCheckIn}>
+                  {questionIndex === checkInQuestions.length - 1 ? 'See practice ideas' : 'Next question'}
+                </button>
+              )}
+            </div>
+          </section>
+        )}
+
+        {screen === 'results' && (
+          <section className="checkin-panel" aria-labelledby="results-title">
+            <span className="eyebrow">Your practice snapshot</span>
+            <h1 id="results-title">Grade {selectedGrade}: skills to build on.</h1>
+            <p className="checkin-intro">
+              You answered {correctCount} of {checkInQuestions.length} sample questions correctly. There was one question per syllabus area, so treat each result as a prompt for further practice—not a reliable measure of the whole area.
+            </p>
+
+            <div className="practice-results">
+              {checkInQuestions.map((question) => {
+                const correct = answers[question.syllabusArea] === question.answer
+                return (
+                  <article className="practice-result" key={question.syllabusArea}>
+                    <div className="practice-result-heading">
+                      <h2>{question.strand}</h2>
+                      <span className={correct ? 'result-label is-correct' : 'result-label needs-practice'}>
+                        {correct ? 'Correct on this item' : 'Practice this skill'}
+                      </span>
+                    </div>
+                    <p className="practice-syllabus-area">Syllabus focus: {question.syllabusArea}</p>
+                    <p>{correct ? 'Keep building on this skill with varied examples.' : question.nextStep}</p>
+                  </article>
+                )
+              })}
+            </div>
+
+            <p className="assessment-disclaimer">
+              This check samples the provided Grade {selectedGrade} topic outline. It is not a formal standards crosswalk, a diagnostic, or a full preparedness measure. Answers disappear when you leave or refresh this page.
+            </p>
+            <div className="checkin-actions results-actions">
+              <a className="secondary-button" href="/">Back to home</a>
+              <button className="primary-button" type="button" onClick={resetCheckIn}>Try again</button>
+            </div>
+          </section>
+        )}
       </main>
     </div>
   )
@@ -114,6 +306,10 @@ function App() {
     window.addEventListener('keydown', closeOnEscape)
     return () => window.removeEventListener('keydown', closeOnEscape)
   }, [mobileMenuOpen])
+
+  if (window.location.pathname.replace(/\/$/, '') === '/account') {
+    return <ParentAccount />
+  }
 
   if (window.location.pathname.replace(/\/$/, '') === '/assessment') {
     return <AssessmentEntry />
@@ -147,8 +343,8 @@ function App() {
             ))}
           </nav>
 
-          <a className="header-cta" href="/assessment/">
-            Try a free check-in
+          <a className="header-cta" href="/account/">
+            Parent portal
           </a>
         </div>
       </header>
@@ -164,8 +360,8 @@ function App() {
               </p>
 
               <div className="hero-actions">
-                <a className="primary-button" href="/assessment/">
-                  Try a free math check-in
+                <a className="primary-button" href="/account/">
+                  Start a math readiness check
                 </a>
                 <a className="secondary-button" href="#how-it-works">
                   See how it works
@@ -314,8 +510,8 @@ function App() {
               <h2>Ready to find your child’s next step?</h2>
               <p>Start with a math check-in and discover the skills to build on.</p>
             </div>
-            <a className="primary-button large" href="/assessment/">
-              Try a free math check-in
+            <a className="primary-button large" href="/account/">
+              Start a math readiness check
             </a>
           </div>
         </section>
