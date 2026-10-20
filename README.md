@@ -13,17 +13,13 @@ Mathematics is cumulative. Students often appear to be doing fine in class while
 
 ## Current prototype
 
-This project contains the public-facing MyMathSteps homepage, parent account UI, parent-managed child profiles, and Grade 6/Grade 7 syllabus-informed Math Readiness Check-ins. Each check-in includes one representative question per major area in the supplied syllabus. Answers and results exist only in page memory and reset when the page is refreshed or closed. This is not a diagnostic or validated standardized test, nor a formal Common Core or state standards crosswalk. The source outline is saved in `../Grade_6-7_Mathematics_Syllabus.txt`.
+This project contains the public-facing MyMathSteps homepage and free Grade 6/Grade 7 syllabus-informed Math Readiness Check-ins. Each check-in includes one representative question per major area in the supplied topic outlines and ends with a printable MyMathSteps summary card. Answers and results exist only in page memory and reset when the page is refreshed or closed. Check-ins require no login and do not collect personal information. This is not a diagnostic or validated standardized test, nor a formal Common Core or state standards crosswalk.
 
-Parent login and child profiles use Supabase Auth and row-level-secured tables; they remain inactive until a Supabase project is configured. PayPal Checkout is prepared for $4.99 once per child and grade, with retakes included; Venmo can appear through PayPal for eligible US transactions. Payment requires Supabase Edge Function secrets and deployment. The client never writes purchase entitlements. Grade 8 check-ins are unavailable until that syllabus and question set are added.
+Parent accounts, child profiles, and payment code are dormant future scaffolding and are not part of the public check-in flow. No checkout is shown and no payments are taken. Grade 8 check-ins are unavailable until that syllabus and question set are added.
 
-### Account data and storage
+### Data and privacy
 
-- Supabase Auth manages the parent email and password (the app does not store the password).
-- Supabase `child_profiles` stores only a parent ID, nickname, grade, and creation time. Use a nickname, not a child's legal name or school details.
-- Supabase `test_entitlements` stores the child/grade purchase entitlement and PayPal order/capture IDs. These tables are protected by row-level security; entitlement writes are server-only.
-- The current browser session token is held in `sessionStorage` and expires with the browser session. Do not collect or store assessment answers; the current check-in keeps answers in page memory only.
-- Do not enter real child data until an accurate privacy notice, parental-consent flow, security review, and applicable child-privacy requirements have been addressed.
+The free check-in stores answers only in page memory; it does not collect logins, child profiles, or assessment results. The Supabase and PayPal/Venmo files are retained as inactive scaffolding only. Do not activate data collection or payment until privacy, parental consent, security, standards validation, and applicable child-privacy requirements have been reviewed.
 
 ## Tech stack
 
@@ -52,9 +48,9 @@ pnpm build
 
 The website-only repository deploys through the GitHub Actions workflow in `.github/workflows/deploy-pages.yml`. The production custom domain is declared in the root `CNAME` file and copied into the build output.
 
-## Parent accounts and payments
+## Future account/payment scaffolding
 
-See `supabase/README.md` for Supabase Auth setup, database migration, and PayPal/Venmo sandbox setup. Do not use real child identifiers in the prototype. Review privacy, parental-consent, standards mapping, and payment policies before enabling live purchases.
+Supabase and PayPal/Venmo setup notes are for possible future work only; they are not needed to use the free check-ins. Do not configure live payment or collect child data from this scaffold yet.
 
 ## Project structure
 

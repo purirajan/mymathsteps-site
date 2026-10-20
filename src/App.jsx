@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { checkInQuestionsByGrade } from './assessmentQuestions.js'
-import { getChildProfiles, getCurrentParent, getTestEntitlements } from './familyApi.js'
 import ParentAccount from './ParentAccount.jsx'
 import './App.css'
 
@@ -76,13 +75,11 @@ function Brand({ footer = false }) {
 }
 
 function AssessmentEntry() {
-  const [screen, setScreen] = useState(() => {
-    const searchParams = new URLSearchParams(window.location.search)
-    const grade = Number(searchParams.get('grade'))
-    return searchParams.get('child') && [6, 7].includes(grade) && getCurrentParent() ? 'checking' : 'access'
+  const [screen, setScreen] = useState('intro')
+  const [selectedGrade, setSelectedGrade] = useState(() => {
+    const grade = new URLSearchParams(window.location.search).get('grade')
+    return ['6', '7'].includes(grade) ? grade : '6'
   })
-  const [selectedGrade, setSelectedGrade] = useState('6')
-  const [authorizedChild, setAuthorizedChild] = useState(null)
   const [questionIndex, setQuestionIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState('')
   const [answers, setAnswers] = useState({})
@@ -90,33 +87,6 @@ function AssessmentEntry() {
 
   useEffect(() => {
     document.title = 'Math Readiness Check-in | MyMathSteps'
-    const searchParams = new URLSearchParams(window.location.search)
-    const childId = searchParams.get('child')
-    const gradeFromUrl = Number(searchParams.get('grade'))
-
-    if (!childId || ![6, 7].includes(gradeFromUrl) || !getCurrentParent()) return undefined
-
-    let isActive = true
-    Promise.all([getChildProfiles(), getTestEntitlements()])
-      .then(([profiles, purchases]) => {
-        if (!isActive) return
-        const child = profiles.find((profile) => profile.id === childId && profile.grade === gradeFromUrl)
-        const hasPurchase = purchases.some((purchase) => purchase.child_profile_id === childId && purchase.grade === gradeFromUrl)
-        if (child && hasPurchase) {
-          setAuthorizedChild(child)
-          setSelectedGrade(String(gradeFromUrl))
-          setScreen('intro')
-        } else {
-          setScreen('access')
-        }
-      })
-      .catch(() => {
-        if (isActive) setScreen('access')
-      })
-
-    return () => {
-      isActive = false
-    }
   }, [])
 
   const checkInQuestions = checkInQuestionsByGrade[selectedGrade]
@@ -124,6 +94,12 @@ function AssessmentEntry() {
   const correctCount = checkInQuestions.reduce(
     (count, question) => count + (answers[question.syllabusArea] === question.answer ? 1 : 0),
     0,
+  )
+  const correctQuestions = checkInQuestions.filter(
+    (question) => answers[question.syllabusArea] === question.answer,
+  )
+  const practiceQuestions = checkInQuestions.filter(
+    (question) => answers[question.syllabusArea] !== question.answer,
   )
 
   const resetCheckIn = () => {
@@ -160,34 +136,27 @@ function AssessmentEntry() {
         </div>
       </header>
       <main className="container assessment-entry" id="main-content">
-        {screen === 'checking' && (
-          <section className="checkin-panel" aria-live="polite">
-            <span className="eyebrow">Parent-managed check-in</span>
-            <h1>Checking family access…</h1>
-          </section>
-        )}
-        {screen === 'access' && (
-          <section className="checkin-panel" aria-labelledby="access-title">
-            <span className="eyebrow">Parent-managed check-in</span>
-            <h1 id="access-title">Choose a family profile to continue.</h1>
-            <p className="checkin-intro">A parent account is required to manage profiles and access paid Math Readiness Check-ins. Each purchase covers one child and grade; retakes are included.</p>
-            <a className="primary-button" href="/account/">Go to parent account</a>
-          </section>
-        )}
         {screen === 'intro' && (
           <section className="checkin-panel" aria-labelledby="checkin-title">
-            <span className="eyebrow">Math Readiness Check-in</span>
+            <span className="eyebrow">Free for everyone · limited-time launch</span>
             <h1 id="checkin-title">A grade-focused check-in to find skills to practice.</h1>
             <p className="checkin-intro">
-              Answer one sample question from each major topic area in the Grade 6 or Grade 7 syllabus. You’ll see explanations and practice ideas as you go.
+              The Grade 6 and Grade 7 check-ins are free while we introduce MyMathSteps. No account or child profile is needed. Answer sample questions and get explanations and practice ideas.
             </p>
-            <p className="question-syllabus-area">Family profile: {authorizedChild?.nickname} · Grade {selectedGrade}</p>
+            <div className="grade-selector">
+              <label htmlFor="target-grade">Choose a grade</label>
+              <select id="target-grade" value={selectedGrade} onChange={(event) => setSelectedGrade(event.target.value)}>
+                <option value="6">Grade 6</option>
+                <option value="7">Grade 7</option>
+                <option value="8" disabled>Grade 8 — coming later</option>
+              </select>
+            </div>
             <p className="syllabus-note">
               This topic outline is a starting framework, not an official Common Core or state standards crosswalk. Schools may teach topics in a different order or grade.
             </p>
             <div className="entry-note">
-              <strong>Check-in for {authorizedChild?.nickname || 'your learner'} · Grade {selectedGrade}</strong>
-              <p>Answers stay in this browser session and are not saved to the family profile.</p>
+              <strong>Free during our launch period</strong>
+              <p>No payment or sign-up required. Answers stay in this browser session and are not saved to a profile.</p>
             </div>
             <p className="assessment-disclaimer">
               This is a learning practice snapshot, not a diagnostic or standardized preparedness test. One question cannot establish mastery of a whole topic area.
@@ -260,6 +229,47 @@ function AssessmentEntry() {
             <p className="checkin-intro">
               You answered {correctCount} of {checkInQuestions.length} sample questions correctly. There was one question per syllabus area, so treat each result as a prompt for further practice—not a reliable measure of the whole area.
             </p>
+
+            <article className="summary-card" aria-labelledby="summary-card-title">
+              <div className="summary-card-topline">
+                <div className="summary-brand-lockup">
+                  <span className="summary-mark" aria-hidden="true">M</span>
+                  <span>MyMathSteps</span>
+                </div>
+                <span className="summary-grade">Grade {selectedGrade}</span>
+              </div>
+              <h2 id="summary-card-title">Math practice snapshot</h2>
+              <p className="summary-card-caption">A quick summary of this free check-in</p>
+              <div className="summary-score-row">
+                <strong>{correctCount}<span>/{checkInQuestions.length}</span></strong>
+                <div>
+                  <b>sample questions correct</b>
+                  <p>Use this as a conversation starter, not a grade or readiness rating.</p>
+                </div>
+              </div>
+              <div className="summary-card-columns">
+                <section>
+                  <h3>Skills to keep building</h3>
+                  {correctQuestions.length ? (
+                    <ul>
+                      {correctQuestions.slice(0, 4).map((question) => <li key={question.syllabusArea}>{question.strand}</li>)}
+                    </ul>
+                  ) : <p>Every skill is a chance to practice and grow.</p>}
+                </section>
+                <section>
+                  <h3>Good next steps</h3>
+                  {practiceQuestions.length ? (
+                    <ul>
+                      {practiceQuestions.slice(0, 4).map((question) => <li key={question.syllabusArea}>{question.nextStep}</li>)}
+                    </ul>
+                  ) : <p>Try different examples to keep strengthening these skills.</p>}
+                </section>
+              </div>
+              <p className="summary-card-footnote">One question per syllabus area · practice snapshot only · answers are not saved</p>
+              <button className="secondary-button print-summary" type="button" onClick={() => window.print()}>
+                Print or save this summary
+              </button>
+            </article>
 
             <div className="practice-results">
               {checkInQuestions.map((question) => {
@@ -343,8 +353,8 @@ function App() {
             ))}
           </nav>
 
-          <a className="header-cta" href="/account/">
-            Parent portal
+          <a className="header-cta" href="/assessment/">
+            Try a free check-in
           </a>
         </div>
       </header>
@@ -360,8 +370,8 @@ function App() {
               </p>
 
               <div className="hero-actions">
-                <a className="primary-button" href="/account/">
-                  Start a math readiness check
+                <a className="primary-button" href="/assessment/">
+                  Try a free math check-in
                 </a>
                 <a className="secondary-button" href="#how-it-works">
                   See how it works
@@ -510,8 +520,8 @@ function App() {
               <h2>Ready to find your child’s next step?</h2>
               <p>Start with a math check-in and discover the skills to build on.</p>
             </div>
-            <a className="primary-button large" href="/account/">
-              Start a math readiness check
+            <a className="primary-button large" href="/assessment/">
+              Try a free math check-in
             </a>
           </div>
         </section>

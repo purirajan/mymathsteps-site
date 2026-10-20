@@ -38,6 +38,10 @@ jobs:
           enablement: true
 
       - name: Install dependencies and build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_PAYPAL_CLIENT_ID: ${{ secrets.VITE_PAYPAL_CLIENT_ID }}
         run: |
           pnpm install --frozen-lockfile
           pnpm build
